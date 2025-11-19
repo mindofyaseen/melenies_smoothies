@@ -29,9 +29,6 @@ st.write("DEBUG: loaded dataframe with rows:", len(pd_df))
 # Create list for multiselect
 fruit_names = pd_df["FRUIT_NAME"].tolist()
 
-# DEBUG
-st.write("DEBUG fruit_names:", fruit_names)
-
 # Multiselect
 ingredients_list = st.multiselect(
     "Choose up to 5 ingredients:",
