@@ -23,14 +23,8 @@ my_dataframe = session.table("smoothies.public.fruit_options").select(
 # Convert to pandas
 pd_df = my_dataframe.to_pandas()
 
-# DEBUG
-st.write("DEBUG: loaded dataframe with rows:", len(pd_df))
-
 # Create list for multiselect
 fruit_names = pd_df["FRUIT_NAME"].tolist()
-
-# DEBUG
-st.write("DEBUG fruit_names:", fruit_names)
 
 # Multiselect
 ingredients_list = st.multiselect(
