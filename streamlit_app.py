@@ -20,52 +20,54 @@ my_dataframe = session.table("smoothies.public.fruit_options").select(
     col('SEARCH_ON')
 )
 
-# Convert to pandas for easier indexing
+# Convert to pandas
 pd_df = my_dataframe.to_pandas()
 
-# Create a simple list of fruit names for the multiselect
+# DEBUG
+st.write("DEBUG: loaded dataframe with rows:", len(pd_df))
+
+# Create list for multiselect
 fruit_names = pd_df["FRUIT_NAME"].tolist()
 
-# Multiselect widget
+# DEBUG
+st.write("DEBUG fruit_names:", fruit_names)
+
+# Multiselect
 ingredients_list = st.multiselect(
     "Choose up to 5 ingredients:",
     fruit_names,
     max_selections=5
 )
 
-# If user selected ingredients
+# If ingredients selected
 if ingredients_list:
 
     ingredients_string = ""
 
     for fruit_chosen in ingredients_list:
 
-        # Build ingredients string for DB insert
+        # Build ingredients string
         ingredients_string += fruit_chosen + " "
 
-        # Lookup SEARCH_ON value
+        # Lookup SEARCH_ON
         search_on = pd_df.loc[
-            pd_df["FRUIT_NAME"] == fruit_chosen,
-            "SEARCH_ON"
+            pd_df["FRUIT_NAME"] == fruit_chosen, "SEARCH_ON"
         ].iloc[0]
 
-        # Section title
         st.subheader(f"{fruit_chosen} Nutrition Information")
 
-        # Correct API call using f-string
+        # API call
         url = f"https://my.smoothiefroot.com/api/fruit/{search_on}"
         smoothiefroot_response = requests.get(url)
 
-        # Display returned JSON
         st.dataframe(smoothiefroot_response.json(), use_container_width=True)
 
-    # Prepare SQL for inserting the order
+    # Insert order
     my_insert_stmt = f"""
         INSERT INTO smoothies.public.orders(ingredients, name_on_order)
         VALUES ('{ingredients_string}', '{name_on_order}');
     """
 
-    # Submit button
     if st.button("Submit Order"):
         session.sql(my_insert_stmt).collect()
         st.success("Your Smoothie is ordered!", icon="✅")
